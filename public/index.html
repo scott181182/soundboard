@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sound Board</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="main.css">
+    </head>
+    <body>
+        <div id="soundboard" class="flex-container">
+            <sound-box v-for="index in tile_count" :key="index"></sound-box>
+        </div>
+        <script type="text/x-template" id="sound-box-template">
+            <div class="sound-box-container" v-on:click="play_sound">
+                <i v-show="playing" class="fas fa-volume-up fa-2x i-abs"></i>
+                <div v-if="empty" class="sound-box">
+                    <div class="on-hover">
+                        <em>No sound loaded, enter YouTube URL:</em>
+                        <br/>
+                        <input type="text" name="yturl" v-model="yturl"/>
+                        <button v-on:click.stop="load_sound" :disabled="loading">
+                            <span v-if="loading"><i class="fas fa-spinner fa-pulse"></i> Loading...</span>
+                            <span v-else>Load!</span>
+                        </button>
+                    </div>
+                </div>
+                <div v-else class="sound-box">
+                    <button class="on-hover i-btn" v-on:click.stop="editing = !editing">
+                        <i class="fas fa-cog fa-2x"></i>
+                    </button>
+                    <div v-if="editing">
+                        <input type="text" name="title" v-model="title" v-on:click.stop=""/>
+                        <button v-on:click.stop="clear_sound">Clear Sound</button>
+                    </div>
+                    <div v-else>
+                        <h2>{{ title }}</h2>
+                    </div>
+                </div>
+            </div>
+        </script>
+        <script type="text/javascript" src="bundle.js"></script>
+    </body>
+</html>
