@@ -1,6 +1,11 @@
 const Vue = require ('vue');
 const axios = require('axios');
 
+const API = {
+    INFO:  'api/info',
+    AUDIO: 'api/audio'
+};
+
 const context = new AudioContext();
 
 
@@ -26,14 +31,14 @@ Vue.component('sound-box', {
             this.loading = true;
             console.log(`Fetching '${this.vid}'`);
 
-            axios.get(`/api/info/${this.vid}`)
+            axios.get(`${API.INFO}/${this.vid}`)
                 .then(res => {
                     const data = res.data.data;
                     this.title = data.title;
 
                     return axios({
                         method: 'get',
-                        url: `/api/audio/${this.vid}`,
+                        url: `${API.AUDIO}/${this.vid}`,
                         headers: { 'Content-Type': 'audio/mpeg' },
                         responseType: 'arraybuffer'
                     });
