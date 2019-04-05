@@ -34,9 +34,7 @@ html, body { margin: 0; padding: 0; }
 }
 .sound-box-container:hover { background-color: #ddd; }
 
-.sound-box-container .on-hover  { display: none; }
-.sound-box-container .off-hover { display: block; }
-.sound-box-container:hover .on-hover  { display: block; }
+.sound-box-container:not(:hover) .on-hover  { display: none; }
 .sound-box-container:hover .off-hover { display: none; }
 
 .sound-box input { width: 100%; }
@@ -50,3 +48,22 @@ html, body { margin: 0; padding: 0; }
     margin-left: 5px;
     margin-top: 5px;
 }
+
+
+
+.mosaic-audio
+{
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+.tile-audio
+{
+    display: flex;
+    width: 50%;
+    align-items: center;
+    justify-content: center;
+}
+.tile-youtube { color: red; }
+.tile-file:hover { background-color: #add; }
+.tile-youtube:hover { background-color: #fbb; }

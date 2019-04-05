@@ -12,9 +12,8 @@ const context = new AudioContext();
 Vue.component('sound-box', {
     data: () => {
         return {
-            empty: true,
+            state: 'empty',
             loading: false,
-            editing: false,
             yturl: '',
             title: '',
             buffer: undefined,
@@ -22,14 +21,61 @@ Vue.component('sound-box', {
         };
     },
     computed: {
-        vid: function() { return new URL(this.yturl).searchParams.get('v'); },
-        playing: function() { return this.players > 0; }
+        vid:     function() { return new URL(this.yturl).searchParams.get('v'); },
+        playing: function() { return this.players > 0; },
+
+        empty:       function() { return this.state.startsWith('empty'); },
+        new_youtube: function() { return this.state == 'empty/youtube'; },
+        new_file:    function() { return this.state == 'empty/file'; },
+        ready:       function() { return this.state.startsWith('ready'); },
+        editing:     function() { return this.state == 'ready/editing'; }
     },
     methods: {
+        toggle_editing: function()
+        {
+            if(this.editing) { this.state = 'ready'; }
+            else { this.state = 'ready/editing'; }
+        },
+        upload_file: function()
+        {
+            this.loading = true;
+            const file = this.$refs.file.files[0];
+            console.log(`Fetching '${file.name}' from computer`);
+
+            if(!file) {
+                console.error('No file to upload!');
+                return this.reset_state();
+            }
+            console.log(typeof file);
+            console.log(file);
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                console.log(typeof event.target.result);
+                console.log(event.target.result);
+                context.decodeAudioData(event.target.result)
+                    .then(buffer => {
+                        this.buffer = buffer;
+                        this.title = file.name;
+                        this.state = 'ready';
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert(`There was an error loading '${file.name}'!`);
+                    });
+            };
+            reader.onerror = (event) => {
+                reader.abort();
+                console.error(event);
+                alert(`There was an error loading '${file.name}'!`);
+                this.reset_state();
+            };
+            reader.readAsArrayBuffer(file);
+        },
         load_sound: function()
         {
             this.loading = true;
-            console.log(`Fetching '${this.vid}'`);
+            console.log(`Fetching '${this.vid}' from YouTube`);
 
             axios.get(`${API.INFO}/${this.vid}`)
                 .then(res => {
@@ -47,31 +93,31 @@ Vue.component('sound-box', {
                 .then(buffer => {
                     this.buffer = buffer;
                     this.loading = false;
-                    this.empty = false;
+                    this.state = 'ready';
                 })
                 .catch(err => { console.error(err); });
         },
         play_sound: function()
         {
-            if(!this.buffer) { return console.log('No sound loaded!'); }
+            if(!this.buffer) {
+                // console.log('No sound loaded!');
+                return;
+            }
 
             const source = context.createBufferSource();
             source.buffer = this.buffer;
             source.connect(context.destination);
-            source.onended = () => {
-                this.players--;
-                console.log(this.players);
-            };
+            source.onended = () => { this.players--; };
             source.start();
             this.players++;
-            console.log(this.players);
         },
-        clear_sound: function()
+        clear_sound: function() { this.reset_state(); },
+        reset_state: function()
         {
             this.title = '';
             this.yturl = '';
             this.loading = false;
-            this.empty = true;
+            this.state = 'empty';
             this.buffer = undefined;
         }
     },

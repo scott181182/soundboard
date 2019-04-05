@@ -13,9 +13,14 @@
         <script type="text/x-template" id="sound-box-template">
             <div class="sound-box-container" v-on:click="play_sound">
                 <i v-show="playing" class="fas fa-volume-up fa-2x i-abs"></i>
+                <i v-show="new_youtube || new_file"
+                    class="fas fa-times fa-2x i-abs"
+                    v-on:click="reset_state"
+                    style="cursor:pointer;">
+                </i>
                 <div v-if="empty" class="sound-box">
-                    <div class="on-hover">
-                        <em>No sound loaded, enter YouTube URL:</em>
+                    <div v-if="new_youtube">
+                        <em>YouTube URL:</em>
                         <br/>
                         <input type="text" name="yturl" v-model="yturl"/>
                         <button v-on:click.stop="load_sound" :disabled="loading">
@@ -23,9 +28,20 @@
                             <span v-else>Load!</span>
                         </button>
                     </div>
+                    <div v-else-if="new_file">
+                        <input type="file" name="file" ref="file" accept="audio/*" v-on:change="upload_file"/>
+                    </div>
+                    <div v-else class="on-hover mosaic-audio">
+                        <div class="tile-audio tile-file" v-on:click="state = 'empty/file'">
+                            <i class="fas fa-file-audio fa-4x"></i>
+                        </div>
+                        <div class="tile-audio tile-youtube" v-on:click="state = 'empty/youtube'">
+                            <i class="fab fa-youtube fa-4x"></i>
+                        </div>
+                    </div>
                 </div>
                 <div v-else class="sound-box">
-                    <button class="on-hover i-btn" v-on:click.stop="editing = !editing">
+                    <button class="on-hover i-btn" v-on:click.stop="toggle_editing">
                         <i class="fas fa-cog fa-2x"></i>
                     </button>
                     <div v-if="editing">

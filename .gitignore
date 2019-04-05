@@ -1,4 +1,5 @@
 node_modules/
+test_media/
 
 .DS_Store
 public/bundle.js
